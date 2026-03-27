@@ -1,4 +1,4 @@
-# core_application/filters.py
+# core/filters.py
 import django_filters
 from .models import Product
 

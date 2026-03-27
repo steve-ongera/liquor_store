@@ -12,7 +12,7 @@ spiritz/
 │
 ├── backend/                                  ← Django REST API
 │   │
-│   ├── core_application/                     ← Single Django app
+│   ├── core/                     ← Single Django app
 │   │   ├── __init__.py
 │   │   ├── admin.py                          ← Admin panel registrations + inlines
 │   │   ├── apps.py
@@ -275,11 +275,11 @@ source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Create the app package files if not present
-touch core_application/__init__.py
+touch core/__init__.py
 touch liquorstore/__init__.py
 
 # Run migrations
-python manage.py makemigrations core_application
+python manage.py makemigrations core
 python manage.py migrate
 
 # Create superuser for admin
@@ -426,7 +426,7 @@ GET /api/v1/products/
 Run in Django shell (`python manage.py shell`):
 
 ```python
-from core_application.models import Category, Brand, Product, Region, PickupStation, DeliveryZone
+from core.models import Category, Brand, Product, Region, PickupStation, DeliveryZone
 from decimal import Decimal
 
 # ── Categories ──────────────────────────────────────────────
