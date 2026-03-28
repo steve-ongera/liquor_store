@@ -7,17 +7,28 @@ export default function CartPage() {
   const navigate = useNavigate();
 
   const subtotal = cart.total || 0;
+  const FREE_DELIVERY_THRESHOLD = 3000;
+  const progressPct = Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100);
 
+  /* ── Empty state ─── */
   if (!cart.items?.length) {
     return (
-      <div className="container" style={{ paddingTop: 20 }}>
+      <div className="container" style={{ paddingTop: 24, paddingBottom: 40 }}>
         <div className="breadcrumb">
           <Link to="/">Home</Link>
           <i className="bi bi-chevron-right"></i>
           <span>Cart</span>
         </div>
-        <div className="empty-cart" style={{ background: 'white', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <i className="bi bi-bag-x"></i>
+        <div
+          className="empty-cart"
+          style={{
+            background: 'white',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: 'var(--shadow-sm)',
+            border: '1px solid var(--border-light)',
+          }}
+        >
+          <i className="bi bi-bag-x" style={{ color: 'var(--border)' }}></i>
           <h3>Your cart is empty</h3>
           <p>Add some premium spirits to get started!</p>
           <Link to="/store" className="btn btn-primary btn-lg">
@@ -29,15 +40,16 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container">
+    <div className="container" style={{ paddingBottom: 40 }}>
       <div className="breadcrumb">
         <Link to="/">Home</Link>
         <i className="bi bi-chevron-right"></i>
-        <span>Shopping Cart ({cart.item_count} items)</span>
+        <span>Shopping Cart ({cart.item_count} {cart.item_count === 1 ? 'item' : 'items'})</span>
       </div>
 
       <div className="cart-layout">
-        {/* Items */}
+
+        {/* ── Items panel ─── */}
         <div>
           <div className="cart-items-panel">
             <div className="cart-panel-header">
@@ -47,11 +59,12 @@ export default function CartPage() {
 
             {cart.items.map(item => (
               <div key={item.id} className="cart-item">
-                {/* Image */}
+
+                {/* Thumbnail */}
                 <Link to={`/product/${item.product.slug}`} className="cart-item-img">
                   {item.product.thumbnail_url
                     ? <img src={item.product.thumbnail_url} alt={item.product.name} />
-                    : <i className="bi bi-cup-hot-fill" style={{ fontSize: 40, color: 'var(--gray-300)' }}></i>
+                    : <i className="bi bi-cup-hot-fill" style={{ fontSize: 36, color: 'var(--border)' }}></i>
                   }
                 </Link>
 
@@ -74,10 +87,10 @@ export default function CartPage() {
                       </button>
                     </div>
                     <button className="cart-item-remove" onClick={() => removeItem(item.id)}>
-                      <i className="bi bi-trash3" style={{ marginRight: 3 }}></i>Remove
+                      <i className="bi bi-trash3" style={{ marginRight: 4 }}></i>Remove
                     </button>
-                    <button style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 500 }}>
-                      <i className="bi bi-heart" style={{ marginRight: 3 }}></i>Save
+                    <button style={{ fontSize: 12, color: 'var(--brand-gold-dim)', fontWeight: 600 }}>
+                      <i className="bi bi-heart" style={{ marginRight: 4 }}></i>Save
                     </button>
                   </div>
                 </div>
@@ -93,7 +106,7 @@ export default function CartPage() {
                     </div>
                   )}
                   {item.product.discount_percentage > 0 && (
-                    <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 700, textAlign: 'right' }}>
+                    <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 700, textAlign: 'right', marginTop: 2 }}>
                       -{item.product.discount_percentage}%
                     </div>
                   )}
@@ -102,16 +115,50 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* Continue shopping */}
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 14 }}>
             <Link to="/store" className="btn btn-outline">
               <i className="bi bi-arrow-left"></i> Continue Shopping
             </Link>
           </div>
         </div>
 
-        {/* Summary */}
+        {/* ── Summary sidebar ─── */}
         <div className="cart-summary">
+
+          {/* Free delivery progress */}
+          <div style={{
+            background: 'white',
+            border: '1px solid var(--border-light)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '14px 16px',
+            marginBottom: 12,
+            boxShadow: 'var(--shadow-xs)',
+          }}>
+            {subtotal >= FREE_DELIVERY_THRESHOLD ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 600, color: 'var(--success)' }}>
+                <i className="bi bi-truck-front-fill" style={{ fontSize: 18 }}></i>
+                You qualify for FREE delivery! 🎉
+              </div>
+            ) : (
+              <>
+                <div style={{ fontSize: 12, color: 'var(--gray-600)', marginBottom: 8, fontWeight: 500 }}>
+                  <i className="bi bi-truck" style={{ marginRight: 6, color: 'var(--brand-gold-dim)' }}></i>
+                  Add <strong style={{ color: 'var(--gray-900)' }}>KES {(FREE_DELIVERY_THRESHOLD - subtotal).toLocaleString()}</strong> more for free delivery
+                </div>
+                <div style={{ height: 6, background: 'var(--surface-raised)', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${progressPct}%`,
+                    background: 'linear-gradient(90deg, var(--brand-gold-dim), var(--brand-gold))',
+                    borderRadius: 3,
+                    transition: 'width 0.4s ease',
+                  }} />
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Order total */}
           <div className="cart-summary-box">
             <div className="cart-panel-header">
               <i className="bi bi-receipt"></i> Order Summary
@@ -122,9 +169,9 @@ export default function CartPage() {
             </div>
             {cart.items.some(i => i.product.discount_percentage > 0) && (
               <div className="summary-row">
-                <span className="summary-label">Discount</span>
+                <span className="summary-label">Discount saved</span>
                 <span className="summary-value discount">
-                  - KES {cart.items.reduce((acc, item) => {
+                  − KES {cart.items.reduce((acc, item) => {
                     if (!item.product.old_price) return acc;
                     return acc + (Number(item.product.old_price) - Number(item.product.price)) * item.quantity;
                   }, 0).toLocaleString()}
@@ -142,35 +189,39 @@ export default function CartPage() {
           </div>
 
           <button className="btn-checkout" onClick={() => navigate('/checkout')}>
-            <i className="bi bi-lock-fill"></i>
-            Proceed to Checkout
+            <i className="bi bi-lock-fill"></i> Proceed to Checkout
           </button>
 
-          <div style={{ marginTop: 12, background: 'white', borderRadius: 8, padding: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--gray-700)', marginBottom: 8 }}>
-              <i className="bi bi-shield-check" style={{ color: 'var(--success)', marginRight: 5 }}></i>
+          {/* Payment icons */}
+          <div style={{
+            marginTop: 12,
+            background: 'white',
+            border: '1px solid var(--border-light)',
+            borderRadius: 'var(--radius)',
+            padding: '12px 14px',
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--gray-600)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <i className="bi bi-shield-check" style={{ color: 'var(--success)', fontSize: 13 }}></i>
               Secure Checkout
             </div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <span className="payment-icon" style={{ background: '#006600', color: 'white' }}>M-PESA</span>
-              <span className="payment-icon" style={{ background: '#1a1f71', color: 'white' }}>VISA</span>
-              <span className="payment-icon" style={{ background: '#eb001b', color: 'white' }}>MC</span>
-              <span className="payment-icon" style={{ background: '#555', color: 'white' }}>CASH</span>
+              {[
+                { label: 'M-PESA',      bg: '#006600' },
+                { label: 'VISA',        bg: '#1a1f71' },
+                { label: 'MC',          bg: '#eb001b' },
+                { label: 'CASH',        bg: 'var(--gray-700)' },
+              ].map(p => (
+                <span
+                  key={p.label}
+                  className="payment-icon"
+                  style={{ background: p.bg, color: 'white' }}
+                >
+                  {p.label}
+                </span>
+              ))}
             </div>
           </div>
 
-          {subtotal >= 3000 && (
-            <div style={{ marginTop: 12, background: 'var(--success-light)', borderRadius: 8, padding: 10, fontSize: 12, color: 'var(--success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <i className="bi bi-truck"></i>
-              You qualify for FREE delivery on this order!
-            </div>
-          )}
-          {subtotal < 3000 && (
-            <div style={{ marginTop: 12, background: 'var(--primary-xlight)', borderRadius: 8, padding: 10, fontSize: 12, color: 'var(--primary-dark)', fontWeight: 600 }}>
-              <i className="bi bi-truck" style={{ marginRight: 5 }}></i>
-              Add KES {(3000 - subtotal).toLocaleString()} more for FREE delivery!
-            </div>
-          )}
         </div>
       </div>
     </div>
