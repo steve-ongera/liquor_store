@@ -231,7 +231,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--images-dir",
-            default=r"D:\gadaf\Documents\images\jumia",
+            default=r"D:\gadaf\Pictures\Camera Roll\images",
             help="Path to folder containing product images (default: D:\\gadaf\\Documents\\images\\jumia)",
         )
         parser.add_argument(
